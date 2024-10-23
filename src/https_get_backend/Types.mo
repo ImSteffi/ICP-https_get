@@ -62,4 +62,4 @@ module Types {
         http_request : HttpRequestArgs -> async HttpResponsePayload;
     };
 
-};
+}

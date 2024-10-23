@@ -3,12 +3,14 @@ import Blob "mo:base/Blob";
 import Cycles "mo:base/ExperimentalCycles";
 import Error "mo:base/Error";
 import Array "mo:base/Array";
+import Nat "mo:base/Nat";
 import Nat8 "mo:base/Nat8";
 import Nat64 "mo:base/Nat64";
 import Text "mo:base/Text";
 import Types "Types";
 
 actor {
+  
   public query func transform(raw : Types.TransformArgs) : async Types.CanisterHttpResponsePayload {
     let transformed : Types.CanisterHttpResponsePayload = {
       status = raw.response.status;
@@ -31,7 +33,7 @@ actor {
     transformed;
   };
 
-  public func http_request() : async Text {
+  public func get_icp_usd_exchange() : async Text {
     // Debug.print("About to add cycles...");
     // let initial_cycles = Cycles.balance();
     // Debug.print("Available cycles before adding: " # Nat64.toText(Nat64.fromNat(initial_cycles)));  // Convert Nat to Nat64
@@ -86,6 +88,42 @@ actor {
     } catch (err) {
       Debug.print("Error during HTTP request: " # Error.message(err));
       return "Request failed: " # Error.message(err);
+    }
+  };
+
+  public func get_json_todo_1() : async Text {
+    Cycles.add(20_949_972_000);  // Add cycles for the HTTP call
+    let ic : Types.IC = actor ("aaaaa-aa");  // Reference the management canister
+
+    let url = "https://jsonplaceholder.typicode.com/todos/1";
+
+    let request_headers = [
+      { name = "User-Agent"; value = "exchange_rate_canister" },
+    ];
+
+    let transform_context : Types.TransformContext = {
+      function = transform;
+      context = Blob.fromArray([]);
+    };
+
+    let http_request : Types.HttpRequestArgs = {
+      url = url;
+      max_response_bytes = null; // Optional for request
+      headers = request_headers;
+      body = null;               // Optional for request
+      method = #get;
+      transform = ?transform_context;
+    };
+
+    try {
+      let http_response = await ic.http_request(http_request);  // Send the HTTP request
+      let response_body : Blob = Blob.fromArray(http_response.body);  // Get the body of the response
+      let decoded_text : Text = switch (Text.decodeUtf8(response_body)) {  // Decode the response into text
+        case (null) { "No value returned" };
+        case (?text) { text };
+      };
+    } catch (err) {
+      return "Request failed: " # Error.message(err);  // Return the error message if the request fails
     }
   };
 };
