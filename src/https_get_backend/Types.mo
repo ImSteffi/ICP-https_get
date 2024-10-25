@@ -1,9 +1,26 @@
 module Types {
+    public type Timestamp = Nat64;
 
-  public type Timestamp = Nat64;
+    public type IncomingHttpRequest = {
+        body : [Nat8];
+        // Add other fields as necessary
+    };
 
-  // First, define the Type that describes the Request arguments for an HTTPS outcall.
+    // Define the HttpRequest and HttpResponse types for local canister use
+    public type HttpRequest = {
+        method : HttpMethod;
+        url : Text;
+        headers : [HttpHeader];
+        body : [Nat8];
+    };
 
+    public type HttpResponse = {
+        status_code : Nat;
+        headers : [HttpHeader];
+        body : [Nat8];
+    };
+
+    // Define existing HttpRequestArgs for HTTPS outcalls
     public type HttpRequestArgs = {
         url : Text;
         max_response_bytes : ?Nat64;
@@ -30,16 +47,11 @@ module Types {
         body : [Nat8];
     };
 
-    // HTTPS outcalls have an optional "transform" key. These two types help describe it.
-    // The transform function can transform the body in any way, add or remove headers, or modify headers.
-    // This Type defines a function called 'TransformRawResponse', which is used above.
-
     public type TransformRawResponseFunction = {
         function : shared query TransformArgs -> async HttpResponsePayload;
         context : Blob;
     };
 
-    // This Type defines the arguments the transform function needs.
     public type TransformArgs = {
         response : HttpResponsePayload;
         context : Blob;
@@ -56,10 +68,7 @@ module Types {
         context : Blob;
     };
 
-
-    // Lastly, declare the management canister which you use to make the HTTPS outcall.
     public type IC = actor {
         http_request : HttpRequestArgs -> async HttpResponsePayload;
     };
-
-}
+};

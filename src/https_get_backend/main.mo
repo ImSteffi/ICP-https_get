@@ -4,13 +4,12 @@ import Cycles "mo:base/ExperimentalCycles";
 import Error "mo:base/Error";
 import Array "mo:base/Array";
 import Nat "mo:base/Nat";
-import Nat8 "mo:base/Nat8";
 import Nat64 "mo:base/Nat64";
 import Text "mo:base/Text";
 import Types "Types";
 
 actor {
-  
+
   public query func transform(raw : Types.TransformArgs) : async Types.CanisterHttpResponsePayload {
     let transformed : Types.CanisterHttpResponsePayload = {
       status = raw.response.status;
@@ -50,7 +49,7 @@ actor {
     let ic : Types.IC = actor ("aaaaa-aa");
     let ONE_MINUTE : Nat64 = 60;
     let start_timestamp : Types.Timestamp = 1682978460; // May 1, 2023 22:01:00 GMT
-    let end_timestamp : Types.Timestamp = 1682978520;   // May 1, 2023 22:02:00 GMT
+    let end_timestamp : Types.Timestamp = 1682978520; // May 1, 2023 22:02:00 GMT
     let host : Text = "api.pro.coinbase.com";
     let url = "https://" # host # "/products/ICP-USD/candles?start=" # Nat64.toText(start_timestamp) # "&end=" # Nat64.toText(end_timestamp) # "&granularity=" # Nat64.toText(ONE_MINUTE);
 
@@ -68,7 +67,7 @@ actor {
       url = url;
       max_response_bytes = null; // Optional for request
       headers = request_headers;
-      body = null;               // Optional for request
+      body = null; // Optional for request
       method = #get;
       transform = ?transform_context;
     };
@@ -88,12 +87,12 @@ actor {
     } catch (err) {
       Debug.print("Error during HTTP request: " # Error.message(err));
       return "Request failed: " # Error.message(err);
-    }
+    };
   };
 
   public func get_json_todo_1() : async Text {
-    Cycles.add(20_949_972_000);  // Add cycles for the HTTP call
-    let ic : Types.IC = actor ("aaaaa-aa");  // Reference the management canister
+    Cycles.add(20_949_972_000); // Add cycles for the HTTP call
+    let ic : Types.IC = actor ("aaaaa-aa"); // Reference the management canister
 
     let url = "https://jsonplaceholder.typicode.com/todos/1";
 
@@ -110,20 +109,34 @@ actor {
       url = url;
       max_response_bytes = null; // Optional for request
       headers = request_headers;
-      body = null;               // Optional for request
+      body = null; // Optional for request
       method = #get;
       transform = ?transform_context;
     };
 
     try {
-      let http_response = await ic.http_request(http_request);  // Send the HTTP request
-      let response_body : Blob = Blob.fromArray(http_response.body);  // Get the body of the response
-      let decoded_text : Text = switch (Text.decodeUtf8(response_body)) {  // Decode the response into text
+      let http_response = await ic.http_request(http_request); // Send the HTTP request
+      let response_body : Blob = Blob.fromArray(http_response.body); // Get the body of the response
+      let decoded_text : Text = switch (Text.decodeUtf8(response_body)) {
+        // Decode the response into text
         case (null) { "No value returned" };
         case (?text) { text };
       };
     } catch (err) {
-      return "Request failed: " # Error.message(err);  // Return the error message if the request fails
-    }
+      return "Request failed: " # Error.message(err); // Return the error message if the request fails
+    };
   };
+
+  // http_request is a built-in query method that handles incoming HTTP requests
+  public query func http_request(request : Types.IncomingHttpRequest) : async () {
+    let bodyBlob : Blob = Blob.fromArray(request.body);
+    let maybeBodyText = Text.decodeUtf8(bodyBlob);
+
+    let bodyText : Text = switch (maybeBodyText) {
+      case (null) { "No value returned" };
+      case (?t) { t };
+    };
+    Debug.print("Request body: " # bodyText);
+  };
+
 };
