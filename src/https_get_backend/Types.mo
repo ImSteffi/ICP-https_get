@@ -14,11 +14,14 @@ module Types {
         body : [Nat8];
     };
 
+
     public type HttpResponse = {
-        status_code : Nat;
-        headers : [HttpHeader];
-        body : [Nat8];
+        status_code : Nat16;
+        headers : [HeaderField];
+        body : Blob;
     };
+
+    public type HeaderField = (Text, Text);
 
     // Define existing HttpRequestArgs for HTTPS outcalls
     public type HttpRequestArgs = {

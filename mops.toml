@@ -1,0 +1,3 @@
+[dependencies]
+base = "0.13.2"
+motoko-sha = "https://github.com/enzoh/motoko-sha#master@9e2468f51ef060ae04fde8d573183191bda30189"

@@ -9,7 +9,7 @@
         "https_get_backend"
       ],
       "source": [
-        "src/https_get_frontend/dist"
+        "src/https_get_fronten`d/dist"
       ],
       "type": "assets",
       "workspace": "https_get_frontend"
@@ -18,7 +18,7 @@
   "defaults": {
     "build": {
       "args": "",
-      "packtool": ""
+      "packtool": "mops sources"
     }
   },
   "output_env_file": ".env",
